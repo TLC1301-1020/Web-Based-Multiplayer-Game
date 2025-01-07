@@ -1,4 +1,4 @@
-COMP 4004 Software Quality Assurance - Interative Development
+COMP 4004 Software Quality Assurance - Interative Improvement Development
 
 Three branches:
 
