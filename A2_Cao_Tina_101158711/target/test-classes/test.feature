@@ -42,22 +42,24 @@ Feature: Quest Game
     And player3 should be detected as winner
 
 
-  Scenario: 0_winner_quest
-    Given no winner game is created with players hand removed
+  Scenario: As the game starts, I want a quest to be drawn and built by one player,
+          with three participants failing in stage one, so the results are verified.
+    Given no winner game is created
+    And all players hands are removed
     And all player hands are defined to specific cards in the no winner game
       | playerIndex | cards                                           |
       | 0           | F5,F5,F10,F10,F15,F15,F20,F20,D5,D5,B15,B15     |
       | 1           | F5,F5,F20,F70,D5,D5,S10,S10,H10,H10,B15,E30     |
       | 2           | F5,F5,F10,F20,D5,D5,S10,S10,H10,H10,L20,E30     |
       | 3           | F5,F5,F10,D5,D5,S10,S10,S10,H10,H10,L20,E30     |
-    And the adventure cards that the players will draw from the deck in no winner game is defined
+    And the adventure cards that the players will draw from the deck is defined in the no winner game
     And the cards the players use in the quest in no winner game is defined
     And no winner game starts
-    When player1 draws a "Q2" event and chooses to sponsor the quest of the no winner game
+    When player1 draws a "Q2" event then chooses to sponsor the quest of the no winner game
     And player2 player3 player4 choose to participate in the quest of the no winner game
     And player1 builds the quest "Q2" in no winner game
     And player2 player3 player4 play cards in the quest and failed to complete the quest "Q2"
-    Then players hand size should be correctly updated
+    Then players hand size should be correct
     And players hand cards should be correct
     And all players should have no shields
     And the game should not detect any winner
