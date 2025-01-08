@@ -43,11 +43,22 @@ Feature: Quest Game
 
 
   Scenario: 0_winner_quest
-    Given fourth game is created with players hand set to values
-    When player 1 draws and sponsor "Q2"
-    And players chose to participate
-    And player 1 builds the stages for quest "Q2"
-    And players failed to complete the quest "Q2"
-    Then players hands should be correctly updated
-    And all participants have not gained any shields
+    Given no winner game is created with players hand removed
+    And all player hands are defined to specific cards in the no winner game
+      | playerIndex | cards                                           |
+      | 0           | F5,F5,F10,F10,F15,F15,F20,F20,D5,D5,B15,B15     |
+      | 1           | F5,F5,F20,F70,D5,D5,S10,S10,H10,H10,B15,E30     |
+      | 2           | F5,F5,F10,F20,D5,D5,S10,S10,H10,H10,L20,E30     |
+      | 3           | F5,F5,F10,D5,D5,S10,S10,S10,H10,H10,L20,E30     |
+    And the adventure cards that the players will draw from the deck in no winner game is defined
+    And the cards the players use in the quest in no winner game is defined
+    And no winner game starts
+    When player1 draws a "Q2" event and chooses to sponsor the quest of the no winner game
+    And player2 player3 player4 choose to participate in the quest of the no winner game
+    And player1 builds the quest "Q2" in no winner game
+    And player2 player3 player4 play cards in the quest and failed to complete the quest "Q2"
+    Then players hand size should be correctly updated
+    And players hand cards should be correct
+    And all players should have no shields
+    And the game should not detect any winner
 
