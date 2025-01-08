@@ -439,7 +439,7 @@ public class Menu {
             } else if (!sponsorplayer.getHand().contains(card)) {
                 System.out.println("You don't have this card");
             }
-            card = scanner.next();
+            card = scanner.nextLine();
         }
         foeCardAtStage = card;
         sponsorplayer.getHand().remove(card);

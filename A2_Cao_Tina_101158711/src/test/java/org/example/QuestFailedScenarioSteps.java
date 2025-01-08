@@ -34,7 +34,7 @@ public class QuestFailedScenarioSteps {
         menu.setScanner(mockScanner);
     }
 
-    @Given("all players hands are removed")
+    @Given("all players hands in no winner game are removed")
     public void players_hands_removed(){
         for (int i = 0; i < game.getPlayers().size(); i++) {
             game.getPlayers().get(i).getHand().clear();
@@ -61,8 +61,9 @@ public class QuestFailedScenarioSteps {
 
     @Given("the cards the players use in the quest in no winner game is defined")
     public void defined_cards_used_in_quest(){
-        when(mockScanner.nextLine()).thenReturn("F20","quit")
-                                    .thenReturn("F15","D5","B15","quit","\n").thenReturn("F5","no","D5","quit","\n")     //P2 S1
+        when(mockScanner.nextLine()).thenReturn("F20","quit")                   //build stage 1
+                                    .thenReturn("F15","D5","B15","quit","\n")   //build stage 2
+                                    .thenReturn("F5","no","D5","quit","\n")     //P2 S1
                                     .thenReturn("F5","no","D5","quit","\n")     //P3 S1
                                     .thenReturn("F5","no","D5","quit","\n")
                                     .thenReturn("S10"); //sponsor trim cards
@@ -72,10 +73,15 @@ public class QuestFailedScenarioSteps {
     public void no_winner_game_starts(){
         menu.updateRound();
     }
-    @When("player1 draws a {string} event then chooses to sponsor the quest of the no winner game")
+
+    @When("player1 draws a {string} quest in no winner game")
     public void player1_draws_then_sponsor_quest(String quest){
-        when(mockScanner.nextInt()).thenReturn(1);
         menu.findingSponsor(quest);
+    }
+
+    @When("player1 sponsors the quest in no winner game")
+    public void player1_sponsor_quest(){
+        when(mockScanner.nextInt()).thenReturn(1);
     }
 
     @When("player2 player3 player4 choose to participate in the quest of the no winner game")
