@@ -3,7 +3,6 @@ package org.example;
 import io.cucumber.datatable.DataTable;
 import io.cucumber.java.en.*;
 import org.mockito.Mockito;
-
 import java.util.*;
 
 import static org.mockito.Mockito.*;
@@ -72,8 +71,8 @@ public class OneWinnerScenarioSteps {
                 });
     }
 
-    @Given("the cards the players use in the quest in one winner game is defined")
-    public void defined_cards_used_in_quest(DataTable dataTable){
+    @Given("the cards the players use in the quests in one winner game is defined")
+    public void defined_cards_used_in_quests(DataTable dataTable){
         List<Map<String, String>> playCards = dataTable.asMaps(String.class, String.class);
         Iterator<Map<String, String>> cardIterator = playCards.iterator();
         List<String> usedCards = new ArrayList<>();
@@ -107,7 +106,7 @@ public class OneWinnerScenarioSteps {
         menu.findingSponsor(quest);
     }
 
-    @When("player1 sponsors the first quest")
+    @When("player1 sponsors the first quest in one winner game")
     public void player1_sponsors_quest_Q4(){
         when(mockScanner.nextInt()).thenReturn(1);
     }
@@ -126,7 +125,7 @@ public class OneWinnerScenarioSteps {
         menu.buildQuest(quest,sponsor,participants);
     }
 
-    @When("quest {string} passed by all participants then sponsor update hands")
+    @When("quest {string} passed by all participants then sponsor update hands in first quest of one winner game")
     public void quest_Q4_completed_with_three_winners(String event){
         menu.quest(event);
         menu.updateRound();
@@ -150,12 +149,12 @@ public class OneWinnerScenarioSteps {
         menu.updateRound();
     }
 
-    @When("player1 draws second quest {string}")
+    @When("player1 draws second quest {string} in one winner game")
     public void player1_draws_quest_Q3(String quest){
         menu.findingSponsor(quest);
     }
 
-    @When("player1 sponsors second quest")
+    @When("player1 sponsors second quest in one winner game")
     public void player1_sponsors_quest_Q3(){
         when(mockScanner.nextInt()).thenReturn(1);
     }
@@ -176,7 +175,7 @@ public class OneWinnerScenarioSteps {
 
     }
 
-    @When("quest {string} passed by player2 player3 then sponsor update hands")
+    @When("quest {string} passed by player2 player3 then sponsor update hands in second quest of one winner game")
     public void quest_Q3_completed_with_two_winners(String event){
         menu.quest(event);
         menu.updateRound();

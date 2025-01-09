@@ -1,24 +1,21 @@
 package org.example;
 
+import io.cucumber.datatable.DataTable;
 import io.cucumber.java.en.*;
-import io.cucumber.java.Before;
+import java.util.*;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Scanner;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 
 public class TwoWinnerScenarioSteps {
-
     private Menu menu;
     private Game game;
     private Deck mockDeck;
     private Scanner mockScanner;
 
-    @Before
-    public void setUp() {
+    @Given("two winner game is created")
+    public void two_winner_game_created(){
         mockDeck = mock(Deck.class);
         mockScanner = mock(Scanner.class);
 
@@ -31,164 +28,143 @@ public class TwoWinnerScenarioSteps {
 
         menu = new Menu(game);
         menu.setScanner(mockScanner);
-
     }
-    @Given("second game is created with players hands set to values")
-    public void second_game_is_created_with_players_hands_set() {
 
-        List<String> hand1 = Arrays.asList("F5", "F10", "F10", "F10", "F15", "D5", "S10", "S10", "H10", "H10", "B15", "L20");
-        List<String> hand2 = Arrays.asList("F5", "F10", "F20", "D5", "D5", "S10", "S10", "H10", "H10", "B15", "L20", "E30");
-        List<String> hand3 = Arrays.asList("F5", "F5", "F10", "F15", "F20", "F20", "D5", "S10", "S10", "H10", "B15", "E30");
-        List<String> hand4 = Arrays.asList("F5", "F10", "D5", "S10", "S10", "H10", "B15", "B15", "L20", "L20", "E30", "E30");
-
+    @Given("all players hands in two winner game are removed")
+    public void two_winner_game_players_hands_removed(){
         for (int i = 0; i < game.getPlayers().size(); i++) {
             game.getPlayers().get(i).getHand().clear();
         }
+    }
 
-        game.getPlayers().get(0).addCards(hand1);
-        game.getPlayers().get(1).addCards(hand2);
-        game.getPlayers().get(2).addCards(hand3);
-        game.getPlayers().get(3).addCards(hand4);
+    @Given("all player hands are defined to specific cards in the two winner game")
+    public void two_winner_game_player_hands_defined(DataTable dataTable){
+        List<Map<String, String>> playerCards = dataTable.asMaps(String.class, String.class);
+        for (Map<String, String> row : playerCards) {
+            int playerIndex = Integer.parseInt(row.get("playerIndex"));
+            List<String> hand = Arrays.asList(row.get("cards").split(","));
+            game.getPlayers().get(playerIndex).addCards(hand);
+        }
+    }
 
+    @Given("the adventure cards that the players will draw from the deck is defined in the two winner game")
+    public void adventure_cards_defined(DataTable dataTable){
+        List<Map<String, String>> drawnCards = dataTable.asMaps(String.class, String.class);
 
+        Iterator<Map<String, String>> cardIterator = drawnCards.iterator();
+        List<String> adventureCards = new ArrayList<>();
 
+        while (cardIterator.hasNext()) {
+            Map<String, String> row = cardIterator.next();
+            String cards = row.get("cards");
+            String[] cardArray = cards.split(",\\s*");
+
+            adventureCards.addAll(Arrays.asList(cardArray));
+        }
         when(mockDeck.drawAdventureCard())
-                //first quest
-                .thenReturn("L20","D5","F20") // stage 1
-                .thenReturn("B15", "F20") // stage 2
-                .thenReturn("F5", "D5") // stage 3
-                .thenReturn("H10","E30") // stage 4
+                .thenAnswer(invocation -> {
+                    if (!adventureCards.isEmpty()) {
+                        String draw = adventureCards.remove(0);
+                        return draw;
+                    } else {
+                        return null;
+                    }
+                });
+    }
 
-                .thenReturn("S10","S10","S10","S10","S10","S10","S10","S10","S10","S10","S10") //p1 draws
+    @Given("the cards the players use in the quests in two winner game is defined")
+    public void cards_players_use_two_winner_game(DataTable dataTable){
+        List<Map<String, String>> playCards = dataTable.asMaps(String.class, String.class);
+        Iterator<Map<String, String>> cardIterator = playCards.iterator();
+        List<String> usedCards = new ArrayList<>();
 
-                //second quest
-                .thenReturn("S10", "F5") //stage 1
-                .thenReturn("L20", "S10") //stage 2
-                .thenReturn("F10", "F5") //stage 3
+        while (cardIterator.hasNext()) {
+            Map<String, String> row = cardIterator.next();
+            String cards = row.get("cards");
+            String[] cardArray = cards.split(",\\s*");
 
-                .thenReturn("F10");
-        menu = new Menu(game);
-        mockScanner = mock(Scanner.class);
-        menu.setScanner(mockScanner);
+            usedCards.addAll(Arrays.asList(cardArray));
+        }
+
+        when(mockScanner.nextLine())
+                .thenAnswer(invocation -> {
+                    if (!usedCards.isEmpty()) {
+                        String draw = usedCards.remove(0);
+                        return draw;
+                    } else {
+                        return null;
+                    }
+                });
+    }
+
+    @Given("the two winner game starts")
+    public void two_winner_game_starts(){
         menu.updateRound();
     }
 
-    @When("player1 draws then sponsor {string}")
-    public void player1_draws_then_sponsor_quest(String quest){
+    @When("player1 draws first quest in two winner game")
+    public void player1_draws_first_quest_Q4(){
         when(mockScanner.nextInt()).thenReturn(1);
+    }
+
+    @When("player1 sponsors the first quest {string} in two winner game")
+    public void player1_sponsors_first_quest(String quest){
         menu.findingSponsor(quest);
     }
 
-    @When("participants found for Q4 quest")
-    public void participants_found_for_the_quest_Q4(){
+    @When("player2 player3 player4 choose to participate in the first quest of two winner game")
+    public void participants_in_first_quest(){
         when(mockScanner.nextInt()).thenReturn(1)
                 .thenReturn(1)
                 .thenReturn(1);
         menu.findParticipants();
     }
 
-    @When("player1 builds the stage for {string}")
-    public void player1_builds_stage_for_Q4(String quest){
+    @When("player1 builds the first quest {string} in two winner game")
+    public void sponsor_builds_first_quest(String quest){
         Player sponsor = menu.getSponsorplayer();
         List<Player> participants = menu.getParticipants();
-        when(mockScanner.nextLine())
-                .thenReturn("F10","quit")
-                .thenReturn("F15","quit")
-                .thenReturn("F10","S10","quit")
-
-                .thenReturn("F10","S10","D5","quit");
         menu.buildQuest(quest,sponsor,participants);
     }
 
-    @When("quest {string} completed with player1 hand updated")
-    public void quest_Q4_completed_with_player1_hand_updated(String event){
-
-        when(mockScanner.nextLine())
-                //P2 stage1
-                .thenReturn("F20","no","B15","quit","\n")   //discard, no opt out, cards to play
-                //P3 stage1
-                .thenReturn("S10","no","D5", "quit","\n")   //discard, no opt out, cards to play
-                //P4 stage 1
-                .thenReturn("F20","no","B15","quit","\n")   //discard, no opt out, cards to play
-
-                //P2 stage2
-                .thenReturn("no","L20","quit","\n")
-                //P4 stage2
-                .thenReturn("no","D5","S10","quit","\n")
-
-                //P2 stage3
-                .thenReturn("no","S10","H10","quit","\n")
-                //P4 stage3
-                .thenReturn("no","E30","quit","\n")
-
-                //p2 stage4
-                .thenReturn("no","L20","D5","quit","\n")
-                //p4 stage 4
-                .thenReturn("no","S10","H10","B15","quit","\n")
-
-                //ended player 1 trim
-                .thenReturn("S10","S10","S10","S10","\n");
-
+    @When("quest {string} passed by all participants then sponsor update hands in first quest of two winner game")
+    public void first_quest_two_winner_game_completed(String event){
         menu.quest(event);
         menu.updateRound();
     }
 
-    @When("player2 draws then player 3 sponsors {string}")
-    public void player_2_draws_quest_Q3(String quest){
-        when(mockScanner.nextInt())
-                .thenReturn(2)
-                .thenReturn(1);
+    @When("player2 draws second quest in two winner game")
+    public void player2_draws_second_quest(){
+        when(mockScanner.nextInt()).thenReturn(2,1);
+
+    }
+    @When("player2 declines to sponsor the quest")
+    public void player2_declines_sponsor(){
+        when(mockScanner.nextInt()).thenReturn(2,1);
+    }
+    @When("player2 declines and player3 sponsors the quest {string} in two winner game")
+    public void player2_declines_sponsor(String quest){
         menu.findingSponsor(quest);
 
     }
 
-    @When("2 participants found for Q3 quest")
-    public void participants_found_for_Q3_quest(){
+    @When("player2 player4 choose to participate in the second quest of two winner game")
+    public void participates_second_quest_two_winner_game(){
         when(mockScanner.nextInt()).thenReturn(1)
                 .thenReturn(2)
                 .thenReturn(1);
         menu.findParticipants();
     }
 
-    @When("player3 builds the stage for {string}")
-    public void player3_builds_stage_for_Q3(String quest){
+    @When("player3 builds the second quest {string} in two winner game")
+    public void sponsor_builds_second_quest(String quest){
         Player sponsor = menu.getSponsorplayer();
         List<Player> participants = menu.getParticipants();
-        when(mockScanner.nextLine())
-                .thenReturn("F5","quit")
-
-                .thenReturn("F10","quit")
-
-                .thenReturn("F15","quit");
-
         menu.buildQuest(quest,sponsor,participants);
     }
 
-    @When("quest {string} completed with player3 hand updated")
-    public void quest_Q3_completed_player3_hand_updated(String event){
-
-        when(mockScanner.nextLine())
-                //P2 stage1
-                .thenReturn("no","S10","quit","\n")
-
-                //P4 stage1
-                .thenReturn("no","L20","quit","\n")
-
-                //P2 stage2
-                .thenReturn("no","B15","quit","\n")
-
-                //P4 stage2
-                .thenReturn("no","E30","quit","\n")
-
-                //P2 stage3
-                .thenReturn("no","E30","quit","\n")
-
-                //P4 stage3
-                .thenReturn("no","L20","quit","\n")
-
-                //ended player 3 trim
-                .thenReturn("F10","F10","F10","F10","F10","F10","\n");
-
+    @When("quest {string} passed by player2 player4 then sponsor update hands in second quest of two winner game")
+    public void second_quest_two_winner_game_completed(String event){
         menu.quest(event);
         menu.updateRound();
     }
@@ -201,14 +177,17 @@ public class TwoWinnerScenarioSteps {
         assertEquals(7,game.getPlayers().get(3).getShields());
     }
 
-    @Then("two winners should be detected")
-    public void two_winners_should_be_detected(){
+    @Then("there should be two winners of the game")
+    public void two_winners_in_game(){
         assertEquals(2,game.checkWinners().size());
-        assertTrue(game.checkWinners().contains(game.getPlayers().get(1)));
-        assertTrue(game.checkWinners().contains(game.getPlayers().get(3)));
-        menu.printWinner();
-
     }
 
-
+    @Then("player2 player4 should be detected as winners")
+    public void two_winners_should_be_detected() {
+        assertTrue(game.checkWinners().contains(game.getPlayers().get(1)));
+        assertTrue(game.checkWinners().contains(game.getPlayers().get(3)));
+        assertFalse(game.checkWinners().contains(game.getPlayers().get(0)));
+        assertFalse(game.checkWinners().contains(game.getPlayers().get(2)));
+        menu.printWinner();
+    }
 }
