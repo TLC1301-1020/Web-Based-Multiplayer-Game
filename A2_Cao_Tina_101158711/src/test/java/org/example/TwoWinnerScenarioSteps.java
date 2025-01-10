@@ -169,7 +169,7 @@ public class TwoWinnerScenarioSteps {
         menu.updateRound();
     }
 
-    @Then("players should have correct shields")
+    @Then("players should have correct shields in two winner game")
     public void players_should_have_correct_shields(){
         assertEquals(0,game.getPlayers().get(0).getShields());
         assertEquals(7,game.getPlayers().get(1).getShields());
